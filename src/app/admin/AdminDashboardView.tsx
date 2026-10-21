@@ -15,8 +15,9 @@ import {
   ExternalLink,
   ChevronDown
 } from 'lucide-react';
-import { Product, OrderStatus } from '@/types';
+import { Product, OrderStatus, Category } from '@/types';
 import { formatCurrency, calculateSavingsPercent } from '@/lib/utils';
+import { ProductTable } from '@/components/admin/ProductTable';
 
 interface MockAdminOrder {
   id: string;
@@ -72,9 +73,10 @@ const INITIAL_ORDERS: MockAdminOrder[] = [
 
 interface AdminDashboardViewProps {
   initialProducts: Product[];
+  categories: Category[];
 }
 
-export function AdminDashboardView({ initialProducts }: AdminDashboardViewProps) {
+export function AdminDashboardView({ initialProducts, categories }: AdminDashboardViewProps) {
   const [orders, setOrders] = useState<MockAdminOrder[]>(INITIAL_ORDERS);
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [orderFilter, setOrderFilter] = useState<string>('all');
@@ -305,94 +307,12 @@ export function AdminDashboardView({ initialProducts }: AdminDashboardViewProps)
               Catalog & Inventory Management
             </h2>
             <p className="text-xs text-neutral-500">
-              Off-price MSRP markdowns, variant stock levels, and category tagging.
+              Manage live cloud products, off-price markdowns, and inventory stock.
             </p>
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead>
-              <tr className="border-b border-neutral-200 text-neutral-400 uppercase tracking-wider font-semibold">
-                <th className="pb-3 pl-2">Product</th>
-                <th className="pb-3">Brand</th>
-                <th className="pb-3">Our Price / MSRP</th>
-                <th className="pb-3">Savings %</th>
-                <th className="pb-3">Variants & Live Stock</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-neutral-100 text-neutral-800">
-              {products.map((p) => {
-                const savings = calculateSavingsPercent(p.price, p.compare_at_price);
-                return (
-                  <tr key={p.id} className="hover:bg-neutral-50/50 transition-colors">
-                    <td className="py-4 pl-2">
-                      <div className="flex items-center gap-3">
-                        <div className="relative w-10 h-12 bg-neutral-100 rounded-md overflow-hidden shrink-0 border border-neutral-200">
-                          <Image src={p.images[0]} alt={p.title} fill className="object-cover" />
-                        </div>
-                        <div>
-                          <p className="font-semibold text-neutral-900 line-clamp-1">{p.title}</p>
-                          <span className="text-[10px] text-neutral-400 font-mono">/{p.slug}</span>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="py-4 font-bold uppercase text-[11px] text-neutral-600">
-                      {p.brand}
-                    </td>
-                    <td className="py-4">
-                      <span className="font-bold text-neutral-950">{formatCurrency(p.price)}</span>
-                      {p.compare_at_price && (
-                        <span className="text-[11px] text-neutral-400 line-through ml-1.5">
-                          {formatCurrency(p.compare_at_price)}
-                        </span>
-                      )}
-                    </td>
-                    <td className="py-4">
-                      {savings ? (
-                        <span className="bg-rose-100 text-rose-800 font-bold px-2 py-0.5 rounded text-[10px]">
-                          Save {savings}%
-                        </span>
-                      ) : (
-                        <span className="text-neutral-400">-</span>
-                      )}
-                    </td>
-                    <td className="py-4">
-                      <div className="space-y-1.5">
-                        {p.variants?.map((v) => (
-                          <div key={v.id} className="flex items-center gap-2 text-[11px]">
-                            <span className="font-medium text-neutral-700 min-w-28">{v.name}:</span>
-                            <span className={`font-bold px-1.5 py-0.5 rounded ${
-                              v.stock_quantity <= 5
-                                ? 'bg-rose-100 text-rose-800'
-                                : 'bg-neutral-100 text-neutral-800'
-                            }`}>
-                              {v.stock_quantity} left
-                            </span>
-                            <button
-                              onClick={() => handleAdjustStock(p.id, v.id, -1)}
-                              className="px-1.5 py-0.5 border border-neutral-200 rounded hover:bg-neutral-100 text-neutral-600 font-bold"
-                              title="Decrease 1"
-                            >
-                              -
-                            </button>
-                            <button
-                              onClick={() => handleAdjustStock(p.id, v.id, 1)}
-                              className="px-1.5 py-0.5 border border-neutral-200 rounded hover:bg-neutral-100 text-neutral-600 font-bold"
-                              title="Increase 1"
-                            >
-                              +
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+        <ProductTable initialProducts={initialProducts} categories={categories} />
       </section>
     </div>
   );

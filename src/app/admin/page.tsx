@@ -1,10 +1,14 @@
 import { Suspense } from 'react';
-import { getProducts } from '@/lib/services/catalog';
+import { getProducts, getCategories } from '@/lib/services/catalog';
 import { AdminDashboardView } from './AdminDashboardView';
 
 async function AdminContent() {
-  const products = await getProducts();
-  return <AdminDashboardView initialProducts={products} />;
+  const [products, categories] = await Promise.all([
+    getProducts(),
+    getCategories(),
+  ]);
+
+  return <AdminDashboardView initialProducts={products} categories={categories} />;
 }
 
 export default function AdminPage() {

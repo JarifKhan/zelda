@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { ShieldCheck, Package, ShoppingCart, ArrowLeft, BarChart3, Tag } from 'lucide-react';
+import { AdminLogoutButton } from '@/components/AdminLogoutButton';
 
 export default function AdminLayout({
   children,
@@ -40,6 +41,8 @@ export default function AdminLayout({
                 <Package className="w-4 h-4" />
                 <span>Catalog & Stock</span>
               </Link>
+              <div className="h-5 w-px bg-neutral-700" />
+              <AdminLogoutButton />
             </nav>
           </div>
         </div>

@@ -6,6 +6,8 @@ import { Footer } from '@/components/Footer';
 import { ProductCard } from '@/components/ProductCard';
 import { getCategories, getProducts } from '@/lib/services/catalog';
 
+export const instant = false;
+
 export default async function HomePage() {
   const [categories, products] = await Promise.all([
     getCategories(),

@@ -1,15 +1,11 @@
 import { createClient } from '@/lib/supabase/server';
 import { MOCK_CATEGORIES, MOCK_PRODUCTS } from '@/lib/data/mock-products';
 import { Category, Product } from '@/types';
-
-function isSupabaseConfigured(): boolean {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  return Boolean(url && !url.includes('placeholder-url') && anonKey && !anonKey.includes('placeholder-anon-key'));
-}
+import { isSupabaseAvailable } from '@/lib/supabase/health';
 
 export async function getCategories(): Promise<Category[]> {
-  if (!isSupabaseConfigured()) {
+  const available = await isSupabaseAvailable();
+  if (!available) {
     return MOCK_CATEGORIES;
   }
 
@@ -38,7 +34,8 @@ export async function getProducts(options?: {
   brand?: string;
   limit?: number;
 }): Promise<Product[]> {
-  if (!isSupabaseConfigured()) {
+  const available = await isSupabaseAvailable();
+  if (!available) {
     let results = [...MOCK_PRODUCTS];
 
     if (options?.categorySlug) {
@@ -136,7 +133,8 @@ export async function getProducts(options?: {
 }
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {
-  if (!isSupabaseConfigured()) {
+  const available = await isSupabaseAvailable();
+  if (!available) {
     const p = MOCK_PRODUCTS.find((item) => item.slug === slug);
     return p || null;
   }

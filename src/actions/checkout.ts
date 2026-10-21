@@ -1,6 +1,7 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
+import { isSupabaseAvailable } from '@/lib/supabase/health';
 import { getPaymentProvider } from '@/lib/payments';
 import { CartItem, Order, PaymentMethod, ShippingAddress } from '@/types';
 
@@ -42,8 +43,7 @@ export async function processCheckout(input: CheckoutInput): Promise<CheckoutRes
     const shippingFee = subtotal >= 75 ? 0 : 5.99; // Free shipping over $75
     const total = subtotal + shippingFee;
 
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const isLiveSupabase = supabaseUrl && !supabaseUrl.includes('placeholder-url');
+    const isLiveSupabase = await isSupabaseAvailable();
 
     let orderId = 'mock-' + Math.random().toString(36).substring(2, 9);
     let secretToken = 'sec-' + Math.random().toString(36).substring(2, 9);
