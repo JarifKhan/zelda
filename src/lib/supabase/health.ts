@@ -16,7 +16,7 @@ export async function isSupabaseAvailable(): Promise<boolean> {
     return false;
   }
 
-  const now = Date.now();
+  const now = performance.now();
   if (isOnline !== null && now - lastCheckTime < CACHE_TTL_MS) {
     return isOnline;
   }

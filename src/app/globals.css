@@ -1,26 +1,154 @@
+/* ==============================================================================
+   HELVETICA NEUE WEB FONT DEFINITIONS (SOLID GLYPHS ONLY)
+   Note: Explicitly mapped to solid woff files to prevent cdnfonts' 
+   helvetica-75-bold-outline font from loading on font-bold / weight 700.
+   ============================================================================== */
+
+@font-face {
+  font-family: 'Helvetica Neue';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Helvetica Neue'), local('HelveticaNeue'), url('https://fonts.cdnfonts.com/s/14188/HelveticaNeue-Roman.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Helvetica Neue';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Helvetica Neue Italic'), local('HelveticaNeue-Italic'), url('https://fonts.cdnfonts.com/s/14188/HelveticaNeueItalic.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Helvetica Neue';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: local('Helvetica Neue Medium'), local('HelveticaNeue-Medium'), url('https://fonts.cdnfonts.com/s/14188/HelveticaNeueMedium.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Helvetica Neue';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: local('Helvetica Neue Bold'), local('HelveticaNeue-Bold'), url('https://fonts.cdnfonts.com/s/14188/HelveticaNeueBold.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Helvetica Neue';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Helvetica Neue Bold'), local('HelveticaNeue-Bold'), url('https://fonts.cdnfonts.com/s/14188/HelveticaNeueBold.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Helvetica Neue';
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Helvetica Neue Bold Italic'), local('HelveticaNeue-BoldItalic'), url('https://fonts.cdnfonts.com/s/14188/HelveticaNeueBoldItalic.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Helvetica Neue';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: local('Helvetica Neue Black'), local('HelveticaNeue-Black'), url('https://fonts.cdnfonts.com/s/14188/HelveticaNeue-Black.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Helvetica Neue';
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+  src: local('Helvetica Neue Black'), local('HelveticaNeue-Black'), url('https://fonts.cdnfonts.com/s/14188/HelveticaNeue-Black.woff') format('woff');
+}
+
 @import "tailwindcss";
 
+@theme {
+  --font-sans: 'Helvetica Neue', Helvetica, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+  --font-serif: 'Helvetica Neue', Helvetica, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+
+  --color-theme-canvas: #FAFAFA;
+  --color-theme-ink: #222222;
+  --color-theme-primary: #CC5A49;
+  --color-theme-primary-hover: #B59A8D;
+  --color-theme-secondary: #9CAEA9;
+
+  /* Harmonize Tailwind default neutral & rose palettes with Warm Minimalist colors */
+  --color-neutral-950: #222222;
+  --color-neutral-900: #222222;
+  --color-neutral-800: #2e2e2e;
+  --color-neutral-700: #424242;
+  --color-neutral-600: #555555;
+  --color-neutral-500: #6b6b6b;
+
+  --color-rose-600: #CC5A49;
+  --color-rose-500: #CC5A49;
+  --color-rose-700: #B54F40;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #FAFAFA;
+  --foreground: #222222;
+  --font-helvetica: "Helvetica Neue", Helvetica, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+
+  color: #222222;
+  color-scheme: light;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  color-scheme: light;
+  background-color: #FAFAFA;
+  color: #222222;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: #FAFAFA;
+  color: #222222;
+  font-family: var(--font-helvetica);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color-scheme: light;
+}
+
+/* ==============================================================================
+   HIGH-CONTRAST & TEXT VISIBILITY GUARDS
+   Ensures white/light background containers always default to solid dark ink text
+   and prevents inheriting white text from dark parent sections.
+   ============================================================================== */
+
+.bg-white,
+[class*="bg-white"],
+.bg-theme-canvas,
+.bg-neutral-50 {
+  color: var(--color-theme-ink, #222222);
+}
+
+/* Force form inputs to always render solid dark text */
+input, select, textarea {
+  color: var(--color-theme-ink, #222222) !important;
+  -webkit-text-fill-color: var(--color-theme-ink, #222222) !important;
+}
+
+input::placeholder, textarea::placeholder {
+  color: #888888 !important;
+  -webkit-text-fill-color: #888888 !important;
+}
+
+/* Universal text-fill and anti-stroke reset */
+*, ::before, ::after {
+  font-family: var(--font-helvetica);
+  -webkit-text-stroke-width: 0px !important;
+  -webkit-text-stroke: 0px transparent !important;
+}
+
+:where(h1, h2, h3, h4, h5, h6, button, p, span, a, label, dt, dd) {
+  -webkit-text-stroke-width: 0px !important;
+  -webkit-text-stroke: 0px transparent !important;
 }

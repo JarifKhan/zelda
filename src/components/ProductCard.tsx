@@ -14,7 +14,7 @@ interface ProductCardProps {
 export function ProductCard({ product }: ProductCardProps) {
   const { addItem } = useCartStore();
   const savingsPercent = calculateSavingsPercent(product.price, product.compare_at_price);
-  const primaryImage = product.images[0] || 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=800&q=80';
+  const primaryImage = product.images[0] || 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=800&q=80';
   const defaultVariant = product.variants?.[0];
 
   const handleQuickAdd = (e: React.MouseEvent) => {
@@ -36,18 +36,18 @@ export function ProductCard({ product }: ProductCardProps) {
   };
 
   return (
-    <div className="group relative flex flex-col bg-white border border-neutral-200/80 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300">
+    <div className="group relative flex flex-col bg-white border border-neutral-200/80 rounded-xl overflow-hidden hover:shadow-md transition-all duration-300">
       
       {/* Top Badges */}
       <div className="absolute top-3 left-3 z-10 flex flex-col gap-1.5 items-start">
         {savingsPercent && (
-          <span className="bg-rose-600 text-white text-[11px] font-black uppercase tracking-wider px-2.5 py-1 rounded-md shadow-sm">
+          <span className="bg-theme-secondary/25 backdrop-blur-md text-theme-ink text-[11px] font-bold tracking-wider px-2.5 py-1 rounded-md border border-theme-secondary/40 shadow-2xs">
             Save {savingsPercent}%
           </span>
         )}
         {product.is_featured && (
-          <span className="bg-amber-400 text-neutral-950 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded shadow-xs flex items-center gap-1">
-            <Sparkles className="w-2.5 h-2.5" /> Hot Deal
+          <span className="bg-white/95 backdrop-blur-md text-theme-ink text-[10px] font-bold tracking-wider px-2.5 py-1 rounded-md border border-neutral-200/80 shadow-2xs flex items-center gap-1">
+            <Sparkles className="w-2.5 h-2.5 text-theme-primary" /> Featured
           </span>
         )}
       </div>
@@ -71,40 +71,50 @@ export function ProductCard({ product }: ProductCardProps) {
         </p>
 
         {/* Title */}
-        <Link href={`/products/${product.slug}`} className="group-hover:text-rose-600 transition-colors">
-          <h3 className="font-semibold text-neutral-900 text-sm line-clamp-2 leading-snug mb-2">
+        <Link href={`/products/${product.slug}`} className="block">
+          <h3 className="font-semibold text-theme-ink group-hover:text-theme-primary transition-colors text-sm line-clamp-2 leading-snug mb-2">
             {product.title}
           </h3>
         </Link>
 
         {/* Category-specific attribute pill */}
-        <div className="text-xs text-neutral-500 mb-3 flex flex-wrap gap-1">
-          {product.attributes.scent && (
-            <span className="bg-neutral-100 text-neutral-600 px-2 py-0.5 rounded text-[11px]">
-              {String(product.attributes.scent)}
+        <div className="text-xs text-theme-ink mb-3 flex flex-wrap gap-1">
+          {product.attributes.fabric && (
+            <span className="bg-theme-secondary/20 text-theme-ink px-2 py-0.5 rounded text-[11px] font-medium truncate max-w-[200px]">
+              {String(product.attributes.fabric)}
+            </span>
+          )}
+          {product.attributes.duration && (
+            <span className="bg-theme-secondary/20 text-theme-ink px-2 py-0.5 rounded text-[11px] font-medium">
+              ⏱ {String(product.attributes.duration)}
+            </span>
+          )}
+          {product.attributes.material && !product.attributes.fabric && (
+            <span className="bg-theme-secondary/20 text-theme-ink px-2 py-0.5 rounded text-[11px] font-medium truncate max-w-[200px]">
+              {String(product.attributes.material)}
+            </span>
+          )}
+          {product.attributes.style && (
+            <span className="bg-theme-secondary/20 text-theme-ink px-2 py-0.5 rounded text-[11px]">
+              {String(product.attributes.style)}
             </span>
           )}
           {product.attributes.volume && (
-            <span className="bg-neutral-100 text-neutral-600 px-2 py-0.5 rounded text-[11px]">
+            <span className="bg-theme-secondary/20 text-theme-ink px-2 py-0.5 rounded text-[11px]">
               {String(product.attributes.volume)}
-            </span>
-          )}
-          {product.attributes.material && (
-            <span className="bg-neutral-100 text-neutral-600 px-2 py-0.5 rounded text-[11px]">
-              {String(product.attributes.material)}
             </span>
           )}
         </div>
 
-        {/* Pricing Stack (TJ Maxx style) */}
+        {/* Pricing Stack */}
         <div className="mt-auto pt-2 border-t border-neutral-100 flex items-baseline justify-between">
           <div className="flex flex-col">
             <div className="flex items-baseline gap-2">
-              <span className="text-lg font-black text-neutral-950">
+              <span className="text-lg font-black text-theme-ink">
                 {formatCurrency(product.price)}
               </span>
               {product.compare_at_price && (
-                <span className="text-xs text-neutral-400 line-through">
+                <span className="text-xs text-neutral-500 line-through">
                   Comp: {formatCurrency(product.compare_at_price)}
                 </span>
               )}
@@ -114,7 +124,7 @@ export function ProductCard({ product }: ProductCardProps) {
           {/* Quick Add Button */}
           <button
             onClick={handleQuickAdd}
-            className="p-2 bg-neutral-900 text-white rounded-lg hover:bg-rose-600 transition-colors flex items-center justify-center shadow-xs"
+            className="p-2 bg-theme-primary text-white rounded-lg hover:bg-theme-primary-hover transition-colors flex items-center justify-center shadow-xs cursor-pointer"
             aria-label={`Add ${product.title} to bag`}
           >
             <ShoppingBag className="w-4 h-4" />

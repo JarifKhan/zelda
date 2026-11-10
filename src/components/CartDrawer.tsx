@@ -7,13 +7,22 @@ import { useCartStore } from '@/lib/store/cart';
 import { formatCurrency } from '@/lib/utils';
 
 export function CartDrawer() {
-  const { items, isOpen, setIsOpen, updateQuantity, removeItem, getSubtotal, getTotalSavings } = useCartStore();
+  const {
+    items,
+    isOpen,
+    setIsOpen,
+    updateQuantity,
+    removeItem,
+    getSubtotal,
+    getTotalSavings,
+    freeShippingThreshold,
+    isFreeShippingEnabled,
+  } = useCartStore();
 
   if (!isOpen) return null;
 
   const subtotal = getSubtotal();
   const savings = getTotalSavings();
-  const freeShippingThreshold = 75;
   const progressToFreeShipping = Math.min((subtotal / freeShippingThreshold) * 100, 100);
   const remainingForFreeShipping = Math.max(freeShippingThreshold - subtotal, 0);
 
@@ -26,13 +35,13 @@ export function CartDrawer() {
       />
 
       <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
-        <div className="w-screen max-w-md bg-white shadow-2xl flex flex-col">
+        <div className="w-screen max-w-md bg-white text-theme-ink shadow-2xl flex flex-col">
           
           {/* Header */}
           <div className="px-6 py-5 border-b border-neutral-200 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <ShoppingBag className="w-5 h-5 text-neutral-900" />
-              <h2 className="text-lg font-bold text-neutral-900">Your Shopping Bag ({items.length})</h2>
+              <ShoppingBag className="w-5 h-5 text-theme-ink" />
+              <h2 className="text-lg font-bold text-theme-ink">Your Shopping Bag ({items.length})</h2>
             </div>
             <button
               onClick={() => setIsOpen(false)}
@@ -44,43 +53,45 @@ export function CartDrawer() {
 
           {/* Savings Callout */}
           {savings > 0 && (
-            <div className="bg-rose-50 border-b border-rose-100 px-6 py-3 flex items-center gap-2 text-rose-800 text-xs font-semibold">
-              <Sparkles className="w-4 h-4 text-rose-600 shrink-0" />
+            <div className="bg-theme-secondary/20 border-b border-theme-secondary/30 px-6 py-3 flex items-center gap-2 text-theme-ink text-xs font-semibold">
+              <Sparkles className="w-4 h-4 text-theme-primary shrink-0" />
               <span>You are saving {formatCurrency(savings)} compared to department store MSRP!</span>
             </div>
           )}
 
           {/* Free Shipping Progress */}
-          <div className="px-6 py-3 bg-neutral-50 border-b border-neutral-200 text-xs">
-            {remainingForFreeShipping > 0 ? (
-              <p className="text-neutral-600 mb-1.5">
-                Add <span className="font-bold text-neutral-900">{formatCurrency(remainingForFreeShipping)}</span> more for <span className="text-emerald-600 font-bold">FREE SHIPPING</span>
-              </p>
-            ) : (
-              <p className="text-emerald-700 font-bold mb-1.5 flex items-center gap-1">
-                ✓ You unlocked FREE STANDARD SHIPPING!
-              </p>
-            )}
-            <div className="w-full bg-neutral-200 rounded-full h-1.5 overflow-hidden">
-              <div
-                className="bg-emerald-500 h-1.5 rounded-full transition-all duration-300"
-                style={{ width: `${progressToFreeShipping}%` }}
-              />
+          {isFreeShippingEnabled && (
+            <div className="px-6 py-3 bg-neutral-50 border-b border-neutral-200 text-xs">
+              {remainingForFreeShipping > 0 ? (
+                <p className="text-neutral-600 mb-1.5">
+                  Add <span className="font-bold text-theme-ink">{formatCurrency(remainingForFreeShipping)}</span> more for <span className="text-emerald-600 font-bold">FREE SHIPPING</span>
+                </p>
+              ) : (
+                <p className="text-emerald-700 font-bold mb-1.5 flex items-center gap-1">
+                  ✓ You unlocked FREE STANDARD SHIPPING!
+                </p>
+              )}
+              <div className="w-full bg-neutral-200 rounded-full h-1.5 overflow-hidden">
+                <div
+                  className="bg-emerald-500 h-1.5 rounded-full transition-all duration-300"
+                  style={{ width: `${progressToFreeShipping}%` }}
+                />
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Items List */}
           <div className="flex-1 overflow-y-auto px-6 py-4 divide-y divide-neutral-100">
             {items.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center text-center py-12">
                 <ShoppingBag className="w-16 h-16 text-neutral-300 mb-4 stroke-[1.5]" />
-                <h3 className="text-base font-semibold text-neutral-900 mb-1">Your bag is empty</h3>
+                <h3 className="text-base font-semibold text-theme-ink mb-1">Your bag is empty</h3>
                 <p className="text-sm text-neutral-500 max-w-xs mb-6">
                   Explore our designer beauty and home accessories at off-price values.
                 </p>
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="px-6 py-2.5 bg-neutral-900 text-white font-medium rounded-lg hover:bg-neutral-800 transition-colors text-sm"
+                  className="px-6 py-2.5 bg-theme-primary text-white font-medium rounded-lg hover:bg-theme-primary-hover transition-colors text-sm"
                 >
                   Start Shopping
                 </button>
@@ -101,21 +112,21 @@ export function CartDrawer() {
                   {/* Details */}
                   <div className="flex-1 flex flex-col justify-between">
                     <div>
-                      <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-500">
                         {item.brand}
                       </p>
-                      <h4 className="text-sm font-semibold text-neutral-900 line-clamp-1">
+                      <h4 className="text-sm font-semibold text-theme-ink line-clamp-1">
                         {item.title}
                       </h4>
                       {item.variantName && (
                         <p className="text-xs text-neutral-500 mt-0.5">{item.variantName}</p>
                       )}
                       <div className="flex items-baseline gap-2 mt-1">
-                        <span className="font-bold text-sm text-neutral-950">
+                        <span className="font-bold text-sm text-theme-ink">
                           {formatCurrency(item.price)}
                         </span>
                         {item.compareAtPrice && item.compareAtPrice > item.price && (
-                          <span className="text-xs text-neutral-400 line-through">
+                          <span className="text-xs text-neutral-500 line-through">
                             {formatCurrency(item.compareAtPrice)}
                           </span>
                         )}
@@ -132,7 +143,7 @@ export function CartDrawer() {
                         >
                           <Minus className="w-3.5 h-3.5" />
                         </button>
-                        <span className="px-2.5 text-xs font-semibold text-neutral-800">
+                        <span className="px-2.5 text-xs font-semibold text-theme-ink">
                           {item.quantity}
                         </span>
                         <button
@@ -146,7 +157,7 @@ export function CartDrawer() {
 
                       <button
                         onClick={() => removeItem(item.productId, item.variantId)}
-                        className="text-neutral-400 hover:text-rose-600 p-1 transition-colors"
+                        className="text-neutral-400 hover:text-theme-primary p-1 transition-colors"
                         aria-label="Remove item"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -164,19 +175,19 @@ export function CartDrawer() {
               <div className="space-y-1.5 text-sm">
                 <div className="flex justify-between text-neutral-600">
                   <span>Subtotal</span>
-                  <span className="font-semibold text-neutral-900">{formatCurrency(subtotal)}</span>
+                  <span className="font-semibold text-theme-ink">{formatCurrency(subtotal)}</span>
                 </div>
                 <div className="flex justify-between text-neutral-600">
                   <span>Estimated Shipping</span>
                   <span>{remainingForFreeShipping === 0 ? 'FREE' : formatCurrency(5.99)}</span>
                 </div>
                 {savings > 0 && (
-                  <div className="flex justify-between text-rose-600 font-semibold">
+                  <div className="flex justify-between text-theme-primary font-semibold">
                     <span>MSRP Savings</span>
                     <span>-{formatCurrency(savings)}</span>
                   </div>
                 )}
-                <div className="flex justify-between text-base font-black text-neutral-950 pt-2 border-t border-neutral-200">
+                <div className="flex justify-between text-base font-black text-theme-ink pt-2 border-t border-neutral-200">
                   <span>Total</span>
                   <span>{formatCurrency(subtotal + (remainingForFreeShipping === 0 ? 0 : 5.99))}</span>
                 </div>
@@ -185,7 +196,7 @@ export function CartDrawer() {
               <Link
                 href="/checkout"
                 onClick={() => setIsOpen(false)}
-                className="w-full bg-neutral-900 hover:bg-neutral-800 text-white font-bold py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 transition-colors shadow-md text-sm"
+                className="w-full bg-theme-primary text-white hover:bg-theme-primary-hover font-bold py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 transition-colors shadow-md text-sm"
               >
                 <span>Proceed to Guest Checkout</span>
                 <ArrowRight className="w-4 h-4" />

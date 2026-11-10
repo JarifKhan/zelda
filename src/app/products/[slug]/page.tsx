@@ -27,23 +27,23 @@ async function ProductContent({ params }: ProductPageProps) {
     <>
       {/* Breadcrumbs */}
       <div className="mb-6 flex items-center gap-2 text-xs text-neutral-500">
-        <Link href="/" className="hover:text-black">
+        <Link href="/" className="hover:text-theme-ink transition-colors">
           Home
         </Link>
         <span>/</span>
         {product.category && (
           <>
-            <Link href={`/categories/${product.category.slug}`} className="hover:text-black">
+            <Link href={`/categories/${product.category.slug}`} className="hover:text-theme-ink transition-colors">
               {product.category.name}
             </Link>
             <span>/</span>
           </>
         )}
-        <span className="text-neutral-900 font-medium truncate max-w-xs">{product.title}</span>
+        <span className="text-theme-ink font-semibold truncate max-w-xs">{product.title}</span>
       </div>
 
       {/* Product Detail View */}
-      <div className="bg-white rounded-3xl border border-neutral-200/80 p-6 sm:p-10 shadow-xs mb-12">
+      <div className="bg-white text-theme-ink rounded-3xl border border-neutral-200/80 p-6 sm:p-10 shadow-xs mb-12">
         <ProductDetailView product={product} />
       </div>
     </>
@@ -52,7 +52,7 @@ async function ProductContent({ params }: ProductPageProps) {
 
 export default function ProductPage(props: ProductPageProps) {
   return (
-    <div className="min-h-screen flex flex-col bg-neutral-50/50">
+    <div className="min-h-screen flex flex-col bg-theme-canvas text-theme-ink">
       <Header />
 
       <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">

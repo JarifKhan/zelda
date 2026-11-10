@@ -7,7 +7,7 @@ import { CheckoutForm } from '@/components/CheckoutForm';
 
 export default function CheckoutPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-neutral-50/50">
+    <div className="min-h-screen flex flex-col bg-theme-canvas text-theme-ink">
       <Header />
 
       <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full">
@@ -20,7 +20,7 @@ export default function CheckoutPage() {
             <ArrowLeft className="w-3.5 h-3.5" /> Continue Shopping
           </Link>
           <div className="flex items-center justify-between">
-            <h1 className="text-3xl font-serif font-black text-neutral-950">
+            <h1 className="text-3xl font-sans font-black text-theme-ink">
               Secure Checkout
             </h1>
             <div className="hidden sm:flex items-center gap-2 text-xs font-bold text-neutral-600 bg-white border border-neutral-200 px-3 py-1.5 rounded-full">

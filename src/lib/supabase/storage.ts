@@ -1,5 +1,4 @@
 import { uploadProductImageAction } from '@/actions/storage';
-import { createClient } from '@/lib/supabase/client';
 
 export interface UploadResult {
   url?: string;
@@ -7,13 +6,12 @@ export interface UploadResult {
 }
 
 /**
- * Uploads a single product image to the 'product-images' Supabase public storage bucket.
- * Uses the secure server action with admin privileges to avoid client-side RLS blocking,
- * with graceful fallback to browser upload.
+ * Uploads a single product image.
+ * Uses the server action which uploads to Supabase Storage (when online)
+ * or local persistent disk storage (public/uploads/products) when offline/local.
  */
 export async function uploadProductImage(file: File): Promise<UploadResult> {
   try {
-    // 1. First try via Server Action (bypasses RLS using service_role)
     const formData = new FormData();
     formData.append('file', file);
 
@@ -22,32 +20,25 @@ export async function uploadProductImage(file: File): Promise<UploadResult> {
       return { url: actionResult.url };
     }
 
-    // 2. Fallback to direct client-side upload if action reported an error
-    const supabase = createClient();
-    const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_').toLowerCase();
-    const uniqueId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID().slice(0, 8) : Math.random().toString(36).slice(2, 10);
-    const filePath = `products/${Date.now()}-${uniqueId}-${sanitizedName}`;
-
-    const { data, error } = await supabase.storage
-      .from('product-images')
-      .upload(filePath, file, {
-        contentType: file.type || 'image/jpeg',
-        cacheControl: '3600',
-        upsert: false,
-      });
-
-    if (error) {
-      return { error: actionResult.error || error.message };
+    if (actionResult.error) {
+      return { error: actionResult.error };
     }
 
-    const { data: publicData } = supabase.storage
-      .from('product-images')
-      .getPublicUrl(data.path);
-
-    return { url: publicData.publicUrl };
+    return { error: 'Unknown upload error occurred.' };
   } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : 'Upload failed';
-    return { error: msg };
+    // If the server action request itself completely failed (e.g. offline browser)
+    try {
+      const dataUrl = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+      return { url: dataUrl };
+    } catch {
+      const msg = err instanceof Error ? err.message : 'Upload failed';
+      return { error: msg };
+    }
   }
 }
 

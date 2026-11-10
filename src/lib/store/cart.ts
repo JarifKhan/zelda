@@ -7,7 +7,15 @@ import { CartItem } from '@/types';
 interface CartState {
   items: CartItem[];
   isOpen: boolean;
+  freeShippingThreshold: number;
+  standardShippingFee: number;
+  isFreeShippingEnabled: boolean;
   setIsOpen: (open: boolean) => void;
+  setShippingSettings: (settings: {
+    freeShippingThreshold?: number;
+    standardShippingFee?: number;
+    isFreeShippingEnabled?: boolean;
+  }) => void;
   addItem: (item: Omit<CartItem, 'quantity'> & { quantity?: number }) => void;
   removeItem: (productId: string, variantId?: string) => void;
   updateQuantity: (productId: string, quantity: number, variantId?: string) => void;
@@ -15,6 +23,7 @@ interface CartState {
   getSubtotal: () => number;
   getTotalSavings: () => number;
   getItemCount: () => number;
+  getShippingFee: () => number;
 }
 
 export const useCartStore = create<CartState>()(
@@ -22,8 +31,27 @@ export const useCartStore = create<CartState>()(
     (set, get) => ({
       items: [],
       isOpen: false,
+      freeShippingThreshold: 75,
+      standardShippingFee: 5.99,
+      isFreeShippingEnabled: true,
 
       setIsOpen: (isOpen) => set({ isOpen }),
+
+      setShippingSettings: (settings) =>
+        set((state) => ({
+          freeShippingThreshold:
+            settings.freeShippingThreshold !== undefined
+              ? settings.freeShippingThreshold
+              : state.freeShippingThreshold,
+          standardShippingFee:
+            settings.standardShippingFee !== undefined
+              ? settings.standardShippingFee
+              : state.standardShippingFee,
+          isFreeShippingEnabled:
+            settings.isFreeShippingEnabled !== undefined
+              ? settings.isFreeShippingEnabled
+              : state.isFreeShippingEnabled,
+        })),
 
       addItem: (newItem) => {
         const { items } = get();
@@ -103,6 +131,14 @@ export const useCartStore = create<CartState>()(
 
       getItemCount: () => {
         return get().items.reduce((total, item) => total + item.quantity, 0);
+      },
+
+      getShippingFee: () => {
+        const { isFreeShippingEnabled, freeShippingThreshold, standardShippingFee } = get();
+        if (isFreeShippingEnabled && get().getSubtotal() >= freeShippingThreshold) {
+          return 0;
+        }
+        return standardShippingFee;
       },
     }),
     {

@@ -94,12 +94,12 @@ function LoginForm() {
   };
 
   return (
-    <div className="bg-white rounded-3xl border border-neutral-200/80 p-8 sm:p-10 shadow-xs max-w-md w-full mx-auto space-y-6">
+    <div className="bg-white text-theme-ink rounded-3xl border border-neutral-200/80 p-8 sm:p-10 shadow-xs max-w-md w-full mx-auto space-y-6">
       <div className="text-center">
         <div className="inline-flex p-3 bg-neutral-100 rounded-2xl mb-3 text-neutral-900">
-          <ShieldCheck className="w-6 h-6 text-rose-600" />
+          <ShieldCheck className="w-6 h-6 text-theme-primary" />
         </div>
-        <h1 className="text-2xl font-serif font-black text-neutral-950">
+        <h1 className="text-2xl font-sans font-black text-theme-ink">
           {isSignUp ? 'Create an Account' : 'Welcome Back'}
         </h1>
         <p className="text-xs text-neutral-500 mt-1">
@@ -123,15 +123,15 @@ function LoginForm() {
           </div>
 
           <div className="bg-white/80 rounded-xl p-2.5 border border-amber-200/60 font-mono text-[11px] space-y-1 text-neutral-800">
-            <div><span className="text-neutral-500 font-sans">Email: </span><strong className="text-neutral-900">admin@zelda.com</strong></div>
-            <div><span className="text-neutral-500 font-sans">Password: </span><strong className="text-neutral-900">admin123</strong></div>
+            <div><span className="text-neutral-500 font-sans">Email: </span><strong className="text-theme-ink">admin@zelda.com</strong></div>
+            <div><span className="text-neutral-500 font-sans">Password: </span><strong className="text-theme-ink">admin123</strong></div>
           </div>
 
           <button
             type="button"
             onClick={handleQuickDemoLogin}
             disabled={loading}
-            className="w-full bg-amber-600 hover:bg-amber-700 disabled:bg-amber-300 text-white font-bold py-2 px-3 rounded-xl text-xs transition-colors shadow-xs flex items-center justify-center gap-2"
+            className="w-full bg-theme-primary hover:bg-theme-primary-hover disabled:bg-neutral-300 text-white font-bold py-2.5 px-3 rounded-xl text-xs transition-colors shadow-xs flex items-center justify-center gap-2 cursor-pointer"
           >
             {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
             <span>One-Click Sign In as Admin</span>
@@ -141,7 +141,7 @@ function LoginForm() {
 
       {errorMsg && (
         <div className="p-3.5 bg-rose-50 border border-rose-200 text-rose-800 rounded-xl text-xs flex items-start gap-2">
-          <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+          <AlertCircle className="w-4 h-4 text-theme-primary shrink-0 mt-0.5" />
           <span>{errorMsg}</span>
         </div>
       )}
@@ -156,7 +156,7 @@ function LoginForm() {
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               placeholder="Jane Doe"
-              className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-neutral-300 focus:outline-hidden focus:border-neutral-900 bg-neutral-50/50"
+              className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-neutral-300 focus:outline-hidden focus:border-theme-ink bg-neutral-50/50 text-theme-ink"
             />
           </div>
         )}
@@ -169,7 +169,7 @@ function LoginForm() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="admin@zelda.com"
-            className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-neutral-300 focus:outline-hidden focus:border-neutral-900 bg-neutral-50/50"
+            className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-neutral-300 focus:outline-hidden focus:border-theme-ink bg-neutral-50/50 text-theme-ink"
           />
         </div>
 
@@ -181,14 +181,14 @@ function LoginForm() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="••••••••"
-            className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-neutral-300 focus:outline-hidden focus:border-neutral-900 bg-neutral-50/50"
+            className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-neutral-300 focus:outline-hidden focus:border-theme-ink bg-neutral-50/50 text-theme-ink"
           />
         </div>
 
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-neutral-950 hover:bg-neutral-800 disabled:bg-neutral-400 text-white font-bold py-3.5 px-6 rounded-xl text-sm flex items-center justify-center gap-2 shadow-md transition-all"
+          className="w-full bg-theme-primary hover:bg-theme-primary-hover disabled:bg-neutral-300 text-white font-bold py-3.5 px-6 rounded-xl text-sm flex items-center justify-center gap-2 shadow-md transition-all cursor-pointer"
         >
           {loading ? (
             <>
@@ -207,7 +207,7 @@ function LoginForm() {
             setIsSignUp(!isSignUp);
             setErrorMsg(null);
           }}
-          className="text-xs text-neutral-600 hover:text-rose-600 font-semibold transition-colors"
+          className="text-xs text-neutral-600 hover:text-theme-primary font-semibold transition-colors"
         >
           {isSignUp
             ? 'Already have an account? Sign In'

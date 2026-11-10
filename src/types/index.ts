@@ -44,17 +44,28 @@ export interface Product {
   is_active: boolean;
   is_featured: boolean;
   attributes: {
-    // Beauty attributes
+    // Fashion & Apparel attributes
+    fabric?: string;
+    material?: string;
+    style?: string;
+    color?: string;
+    includes?: string;
+    occasion?: string;
+    care_instructions?: string;
+    fit?: string;
+    // Beauty & Cosmetics attributes
     shade?: string;
     scent?: string;
     volume?: string;
     skin_type?: string;
-    // Home attributes
+    key_actives?: string;
+    // Salon Services attributes
+    duration?: string;
+    service_type?: string;
+    appointment_required?: boolean;
+    // Dimensions & Specifications
     dimensions?: string;
-    material?: string;
-    room?: string;
     fragile?: boolean;
-    care_instructions?: string;
     [key: string]: unknown;
   };
   variants?: ProductVariant[];

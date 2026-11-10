@@ -122,10 +122,9 @@ export function ProductTable({ initialProducts, categories }: ProductTableProps)
     setIsModalOpen(true);
   };
 
-  // Handle Multi-file Upload to Supabase Storage
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
+  // Handle Multi-file Upload (Cloud Bucket or Local Storage)
+  const processFiles = async (fileList: FileList | File[]) => {
+    if (!fileList || fileList.length === 0) return;
 
     setIsUploadingImage(true);
     setModalError(null);
@@ -133,8 +132,12 @@ export function ProductTable({ initialProducts, categories }: ProductTableProps)
     const uploadedUrls: string[] = [];
     const uploadErrors: string[] = [];
 
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
+    const filesArray = Array.from(fileList);
+    for (const file of filesArray) {
+      if (!file.type.startsWith('image/')) {
+        uploadErrors.push(`${file.name}: Not an image file`);
+        continue;
+      }
       const res = await uploadProductImage(file);
       if (res.url) {
         uploadedUrls.push(res.url);
@@ -144,7 +147,7 @@ export function ProductTable({ initialProducts, categories }: ProductTableProps)
     }
 
     if (uploadErrors.length > 0) {
-      setModalError(`Upload issue: ${uploadErrors.join(', ')}`);
+      setModalError(`Upload notice: ${uploadErrors.join(', ')}`);
     }
 
     if (uploadedUrls.length > 0) {
@@ -158,6 +161,25 @@ export function ProductTable({ initialProducts, categories }: ProductTableProps)
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      processFiles(e.target.files);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      processFiles(e.dataTransfer.files);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
   };
 
   // Add image by direct URL
@@ -327,18 +349,18 @@ export function ProductTable({ initialProducts, categories }: ProductTableProps)
             placeholder="Search products by title, brand, category..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full text-xs pl-9 pr-4 py-2.5 rounded-xl border border-neutral-300 focus:outline-hidden focus:border-neutral-900 bg-neutral-50/50"
+            className="w-full text-xs pl-9 pr-4 py-2.5 rounded-xl border border-neutral-300 focus:outline-hidden focus:border-neutral-900 bg-neutral-50/50 text-theme-ink"
           />
         </div>
 
         <div className="flex items-center gap-3">
           <span className="text-xs text-neutral-500 font-medium hidden md:inline">
-            Showing <strong className="text-neutral-900">{filteredProducts.length}</strong> of {products.length}
+            Showing <strong className="text-theme-ink">{filteredProducts.length}</strong> of {products.length}
           </span>
 
           <button
             onClick={handleOpenCreate}
-            className="bg-neutral-950 hover:bg-neutral-800 text-white font-bold text-xs px-4 py-2.5 rounded-xl flex items-center gap-1.5 shadow-sm transition-all shrink-0 cursor-pointer"
+            className="bg-theme-primary hover:bg-theme-primary-hover text-white font-bold text-xs px-4 py-2.5 rounded-xl flex items-center gap-1.5 shadow-sm transition-all shrink-0 cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Add New Product</span>
@@ -405,7 +427,7 @@ export function ProductTable({ initialProducts, categories }: ProductTableProps)
                       <div className="flex items-center gap-3">
                         <div className="relative w-11 h-14 bg-neutral-100 rounded-lg overflow-hidden shrink-0 border border-neutral-200">
                           {thumbnail ? (
-                            <Image src={thumbnail} alt={p.title} fill className="object-cover" />
+                            <Image src={thumbnail} alt={p.title} fill className="object-cover" unoptimized />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center text-neutral-400">
                               <ImageIcon className="w-5 h-5" />
@@ -413,7 +435,7 @@ export function ProductTable({ initialProducts, categories }: ProductTableProps)
                           )}
                         </div>
                         <div className="max-w-xs">
-                          <p className="font-semibold text-neutral-900 line-clamp-1 hover:text-rose-600 transition-colors">
+                          <p className="font-semibold text-theme-ink line-clamp-1 hover:text-theme-primary transition-colors">
                             {p.title}
                           </p>
                           <span className="text-[10px] text-neutral-400 font-mono">/{p.slug}</span>
@@ -433,9 +455,9 @@ export function ProductTable({ initialProducts, categories }: ProductTableProps)
 
                     <td className="py-3.5 px-3 whitespace-nowrap">
                       <div className="flex items-baseline gap-1.5">
-                        <span className="font-bold text-neutral-950 text-sm">{formatCurrency(p.price)}</span>
+                        <span className="font-bold text-theme-ink text-sm">{formatCurrency(p.price)}</span>
                         {p.compare_at_price && (
-                          <span className="text-[11px] text-neutral-400 line-through">
+                          <span className="text-[11px] text-neutral-500 line-through">
                             {formatCurrency(p.compare_at_price)}
                           </span>
                         )}
@@ -444,7 +466,7 @@ export function ProductTable({ initialProducts, categories }: ProductTableProps)
 
                     <td className="py-3.5 px-3 whitespace-nowrap">
                       {savings ? (
-                        <span className="bg-rose-100 text-rose-800 font-bold px-2 py-0.5 rounded text-[10px]">
+                        <span className="bg-theme-secondary/20 text-theme-ink border border-theme-secondary/30 font-bold px-2 py-0.5 rounded text-[10px]">
                           Save {savings}%
                         </span>
                       ) : (
@@ -495,11 +517,11 @@ export function ProductTable({ initialProducts, categories }: ProductTableProps)
       {/* CREATE & EDIT MODAL */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs overflow-y-auto">
-          <div className="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl border border-neutral-200 space-y-5 my-8 max-h-[90vh] overflow-y-auto">
+          <div className="bg-white text-theme-ink rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl border border-neutral-200 space-y-5 my-8 max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
             <div className="flex items-center justify-between border-b border-neutral-100 pb-4">
               <div>
-                <h3 className="text-lg font-serif font-black text-neutral-950">
+                <h3 className="text-lg font-sans font-black text-theme-ink">
                   {modalMode === 'create' ? 'Add New Product' : 'Edit Product'}
                 </h3>
                 <p className="text-xs text-neutral-500">
@@ -546,7 +568,7 @@ export function ProductTable({ initialProducts, categories }: ProductTableProps)
                   placeholder="e.g. Amber & Santal Botanical Soy Candle (14 oz)"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-neutral-300 focus:outline-hidden focus:border-neutral-900 bg-neutral-50/50"
+                  className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-neutral-300 focus:outline-hidden focus:border-neutral-900 bg-neutral-50/50 text-theme-ink"
                 />
               </div>
 
@@ -562,7 +584,7 @@ export function ProductTable({ initialProducts, categories }: ProductTableProps)
                     placeholder="e.g. Maison Luminaire"
                     value={formData.brand}
                     onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
-                    className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-neutral-300 focus:outline-hidden focus:border-neutral-900 bg-neutral-50/50"
+                    className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-neutral-300 focus:outline-hidden focus:border-neutral-900 bg-neutral-50/50 text-theme-ink"
                   />
                 </div>
 
@@ -578,11 +600,14 @@ export function ProductTable({ initialProducts, categories }: ProductTableProps)
                     {categories.length === 0 ? (
                       <option value="">No categories available</option>
                     ) : (
-                      categories.map((c) => (
-                        <option key={c.id} value={c.id}>
-                          {c.name}
-                        </option>
-                      ))
+                      categories.map((c) => {
+                        const parent = c.parent_id ? categories.find((p) => p.id === c.parent_id) : null;
+                        return (
+                          <option key={c.id} value={c.id}>
+                            {parent ? `${parent.name} → ${c.name}` : `★ ${c.name}`}
+                          </option>
+                        );
+                      })
                     )}
                   </select>
                 </div>
@@ -627,7 +652,7 @@ export function ProductTable({ initialProducts, categories }: ProductTableProps)
                     placeholder="42.00"
                     value={formData.compare_at_price}
                     onChange={(e) => setFormData({ ...formData, compare_at_price: e.target.value })}
-                    className="w-full text-xs px-3 py-2.5 rounded-xl border border-neutral-300 focus:outline-hidden focus:border-neutral-900 bg-neutral-50/50"
+                    className="w-full text-xs px-3 py-2.5 rounded-xl border border-neutral-300 focus:outline-hidden focus:border-neutral-900 bg-neutral-50/50 text-theme-ink"
                   />
                 </div>
 
@@ -662,6 +687,8 @@ export function ProductTable({ initialProducts, categories }: ProductTableProps)
                 {/* Upload Trigger Dropzone */}
                 <div
                   onClick={() => fileInputRef.current?.click()}
+                  onDrop={handleDrop}
+                  onDragOver={handleDragOver}
                   className="border-2 border-dashed border-neutral-300 hover:border-neutral-800 rounded-2xl p-4 text-center cursor-pointer transition-colors bg-neutral-50/50 hover:bg-neutral-50"
                 >
                   <input
@@ -675,16 +702,16 @@ export function ProductTable({ initialProducts, categories }: ProductTableProps)
                   {isUploadingImage ? (
                     <div className="flex items-center justify-center gap-2 text-xs text-neutral-600 py-2">
                       <Loader2 className="w-4 h-4 animate-spin text-neutral-900" />
-                      <span>Uploading to Supabase Storage...</span>
+                      <span>Uploading image...</span>
                     </div>
                   ) : (
                     <div className="flex flex-col items-center gap-1.5 py-1">
                       <UploadCloud className="w-6 h-6 text-neutral-400" />
                       <p className="text-xs font-semibold text-neutral-700">
-                        Click to upload images from your device
+                        Click or drag images here to upload
                       </p>
                       <p className="text-[10px] text-neutral-400">
-                        PNG, JPG, or WEBP (uploaded directly to cloud bucket)
+                        PNG, JPG, WEBP, GIF (up to 15MB)
                       </p>
                     </div>
                   )}
@@ -699,7 +726,7 @@ export function ProductTable({ initialProducts, categories }: ProductTableProps)
                       placeholder="Or paste an image URL (https://...)"
                       value={imageUrlInput}
                       onChange={(e) => setImageUrlInput(e.target.value)}
-                      className="w-full text-xs pl-8 pr-3 py-2 rounded-xl border border-neutral-300 focus:outline-hidden focus:border-neutral-900 bg-neutral-50/50"
+                      className="w-full text-xs pl-8 pr-3 py-2 rounded-xl border border-neutral-300 focus:outline-hidden focus:border-neutral-900 bg-neutral-50/50 text-theme-ink"
                     />
                   </div>
                   <button
@@ -724,7 +751,7 @@ export function ProductTable({ initialProducts, categories }: ProductTableProps)
                             isMain ? 'border-amber-400 ring-2 ring-amber-200' : 'border-neutral-200'
                           }`}
                         >
-                          <Image src={imgUrl} alt={`Upload ${idx + 1}`} fill className="object-cover" />
+                          <Image src={imgUrl} alt={`Upload ${idx + 1}`} fill className="object-cover" unoptimized />
 
                           {/* Main Badge */}
                           {isMain && (
@@ -775,7 +802,7 @@ export function ProductTable({ initialProducts, categories }: ProductTableProps)
                 <button
                   type="submit"
                   disabled={isSubmitting || isUploadingImage}
-                  className="bg-neutral-950 hover:bg-neutral-800 disabled:bg-neutral-400 text-white font-bold py-2.5 px-5 rounded-xl text-xs flex items-center gap-2 shadow-xs transition-colors cursor-pointer"
+                  className="bg-theme-primary hover:bg-theme-primary-hover disabled:bg-neutral-300 text-white font-bold py-2.5 px-5 rounded-xl text-xs flex items-center gap-2 shadow-xs transition-colors cursor-pointer"
                 >
                   {isSubmitting ? (
                     <>
@@ -795,15 +822,15 @@ export function ProductTable({ initialProducts, categories }: ProductTableProps)
       {/* DELETE CONFIRMATION MODAL */}
       {deletingProduct && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-neutral-200 space-y-5 text-center">
+          <div className="bg-white text-theme-ink rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-neutral-200 space-y-5 text-center">
             <div className="w-12 h-12 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto">
               <Trash2 className="w-6 h-6" />
             </div>
 
             <div>
-              <h3 className="text-lg font-serif font-black text-neutral-950">Delete Product</h3>
+              <h3 className="text-lg font-sans font-black text-theme-ink">Delete Product</h3>
               <p className="text-xs text-neutral-500 mt-1.5 leading-relaxed">
-                Are you sure you want to delete <strong className="text-neutral-900">&quot;{deletingProduct.title}&quot;</strong>? This action will remove the product and its inventory variants from your Supabase database.
+                Are you sure you want to delete <strong className="text-theme-ink">&quot;{deletingProduct.title}&quot;</strong>? This action will remove the product and its inventory variants from your Supabase database.
               </p>
             </div>
 
@@ -820,7 +847,7 @@ export function ProductTable({ initialProducts, categories }: ProductTableProps)
                 type="button"
                 disabled={isDeleting}
                 onClick={handleConfirmDelete}
-                className="bg-rose-600 hover:bg-rose-700 disabled:bg-rose-300 text-white font-bold py-2.5 px-5 rounded-xl text-xs flex items-center gap-2 shadow-xs transition-colors cursor-pointer"
+                className="bg-theme-primary hover:bg-theme-primary-hover disabled:bg-neutral-300 text-white font-bold py-2.5 px-5 rounded-xl text-xs flex items-center gap-2 shadow-xs transition-colors cursor-pointer"
               >
                 {isDeleting ? (
                   <>

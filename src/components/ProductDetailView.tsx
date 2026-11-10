@@ -15,16 +15,21 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | undefined>(
     product.variants?.[0]
   );
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [addedAnimation, setAddedAnimation] = useState(false);
   const { addItem } = useCartStore();
+
+  const images = product.images && product.images.length > 0
+    ? product.images
+    : ['https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=800&q=80'];
+  const activeImage = images[activeImageIndex] || images[0];
 
   const activePrice = selectedVariant?.price ?? product.price;
   const activeCompareAt = selectedVariant?.compare_at_price ?? product.compare_at_price;
   const savingsPercent = calculateSavingsPercent(activePrice, activeCompareAt);
   const savingsDollar = activeCompareAt && activeCompareAt > activePrice ? activeCompareAt - activePrice : null;
   const activeStock = selectedVariant?.stock_quantity ?? 15;
-  const primaryImage = product.images[0] || 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=800&q=80';
 
   const handleAddToCart = () => {
     addItem({
@@ -35,7 +40,7 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
       brand: product.brand,
       price: activePrice,
       compareAtPrice: activeCompareAt,
-      image: primaryImage,
+      image: activeImage,
       quantity,
       maxStock: activeStock,
       attributes: {
@@ -50,20 +55,56 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
-      {/* Media Gallery */}
-      <div className="space-y-4">
-        <div className="relative aspect-4/5 w-full bg-neutral-100 rounded-2xl overflow-hidden border border-neutral-200 shadow-sm">
+      {/* Media Gallery with Vertical Thumbnail Strip */}
+      <div className="flex flex-col-reverse md:flex-row gap-4 items-start w-full">
+        {/* Left Column: Vertical Thumbnails Strip (Scrollable on Desktop, Horizontal on Mobile) */}
+        <div className="flex md:flex-col gap-2.5 overflow-x-auto md:overflow-y-auto max-h-[500px] lg:max-h-[580px] w-full md:w-20 lg:w-24 shrink-0 py-1 px-0.5">
+          {images.map((img, idx) => {
+            const isActive = activeImageIndex === idx;
+            return (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => setActiveImageIndex(idx)}
+                className={`relative aspect-square w-16 h-16 sm:w-18 sm:h-18 md:w-full rounded-xl overflow-hidden shrink-0 transition-all cursor-pointer bg-neutral-100 ${
+                  isActive
+                    ? 'border-2 border-theme-ink shadow-sm'
+                    : 'border border-neutral-200/90 hover:border-neutral-400 opacity-75 hover:opacity-100'
+                }`}
+                aria-label={`View product image ${idx + 1} of ${images.length}`}
+                aria-current={isActive ? 'true' : 'false'}
+              >
+                <Image
+                  src={img}
+                  alt={`${product.title} thumbnail ${idx + 1}`}
+                  fill
+                  sizes="(max-width: 768px) 72px, 96px"
+                  className="object-cover object-center"
+                  unoptimized
+                />
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Right Area: Large Main Image Display */}
+        <div className="relative aspect-4/5 w-full flex-1 bg-neutral-100 rounded-2xl overflow-hidden border border-neutral-200 shadow-sm">
           <Image
-            src={primaryImage}
-            alt={product.title}
+            src={activeImage}
+            alt={`${product.title} - View ${activeImageIndex + 1}`}
             fill
             priority
             sizes="(max-width: 1024px) 100vw, 50vw"
-            className="object-cover object-center"
+            className="object-cover object-center transition-all duration-300"
           />
           {savingsPercent && (
-            <div className="absolute top-4 left-4 bg-rose-600 text-white font-black text-xs px-3 py-1.5 rounded-lg shadow-md uppercase tracking-wider">
+            <div className="absolute top-4 left-4 bg-theme-secondary/25 backdrop-blur-md text-theme-ink font-bold text-xs px-3 py-1.5 rounded-lg border border-theme-secondary/40 shadow-xs uppercase tracking-wider">
               Save {savingsPercent}% vs MSRP
+            </div>
+          )}
+          {images.length > 1 && (
+            <div className="absolute bottom-3 right-3 bg-neutral-900/70 backdrop-blur-xs text-white text-[11px] font-semibold px-2.5 py-1 rounded-full shadow-xs">
+              {activeImageIndex + 1} / {images.length}
             </div>
           )}
         </div>
@@ -75,7 +116,7 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
           <span className="text-xs font-bold uppercase tracking-widest text-neutral-500">
             {product.brand}
           </span>
-          <h1 className="text-2xl sm:text-3xl font-serif font-black text-neutral-950 mt-1 leading-snug">
+          <h1 className="text-2xl sm:text-3xl font-sans font-black text-theme-ink mt-1 leading-snug">
             {product.title}
           </h1>
         </div>
@@ -83,18 +124,18 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
         {/* Pricing Stack (TJ Maxx style) */}
         <div className="bg-neutral-50 p-5 rounded-2xl border border-neutral-200/80 space-y-2">
           <div className="flex items-baseline gap-3">
-            <span className="text-3xl sm:text-4xl font-black text-neutral-950">
+            <span className="text-3xl sm:text-4xl font-black text-theme-ink">
               {formatCurrency(activePrice)}
             </span>
             {activeCompareAt && (
-              <span className="text-base text-neutral-400 line-through">
+              <span className="text-base text-neutral-500 line-through">
                 MSRP: {formatCurrency(activeCompareAt)}
               </span>
             )}
           </div>
           {savingsDollar && (
-            <p className="text-xs font-bold text-rose-600 flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5" />
+            <p className="text-xs font-bold text-theme-primary flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-theme-primary" />
               You save {formatCurrency(savingsDollar)} ({savingsPercent}% off regular department retail)
             </p>
           )}
@@ -118,8 +159,8 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
                     }}
                     className={`px-4 py-2.5 rounded-xl text-xs font-semibold border transition-all ${
                       isSelected
-                        ? 'border-neutral-900 bg-neutral-900 text-white shadow-xs'
-                        : 'border-neutral-200 bg-white text-neutral-800 hover:border-neutral-400'
+                        ? 'border-theme-ink bg-theme-ink text-white shadow-xs'
+                        : 'border-neutral-200 bg-white text-theme-ink hover:border-neutral-400'
                     }`}
                   >
                     <span>{v.name}</span>
@@ -154,7 +195,7 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
               >
                 -
               </button>
-              <span className="w-8 text-center text-sm font-bold text-neutral-900">
+              <span className="w-8 text-center text-sm font-bold text-theme-ink">
                 {quantity}
               </span>
               <button
@@ -174,7 +215,7 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
                   ? 'bg-neutral-200 text-neutral-400 cursor-not-allowed'
                   : addedAnimation
                   ? 'bg-emerald-600 text-white'
-                  : 'bg-neutral-900 hover:bg-neutral-800 text-white'
+                  : 'bg-theme-primary text-white hover:bg-theme-primary-hover transition-colors'
               }`}
             >
               {addedAnimation ? (
@@ -198,7 +239,7 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
 
         {/* Description & Specifications Grid */}
         <div className="border-t border-neutral-200 pt-6 space-y-4">
-          <h3 className="text-sm font-bold text-neutral-900 uppercase tracking-wider">
+          <h3 className="text-sm font-bold text-theme-ink uppercase tracking-wider">
             Product Details & Attributes
           </h3>
           <p className="text-sm text-neutral-600 leading-relaxed">
@@ -211,10 +252,10 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
               const formattedKey = key.replace(/_/g, ' ').toUpperCase();
               return (
                 <div key={key} className="bg-neutral-50 p-2.5 rounded-lg border border-neutral-100">
-                  <dt className="text-neutral-400 font-semibold text-[10px] uppercase">
+                  <dt className="text-neutral-500 font-semibold text-[10px] uppercase">
                     {formattedKey}
                   </dt>
-                  <dd className="font-semibold text-neutral-800 mt-0.5">
+                  <dd className="font-semibold text-theme-ink mt-0.5">
                     {typeof value === 'boolean' ? (value ? 'Yes' : 'No') : String(value)}
                   </dd>
                 </div>
